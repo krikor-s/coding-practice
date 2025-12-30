@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Krikor Banking App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .hidden { display: none; }
+        .container { max-width: 400px; margin: auto; }
+        input { display: block; margin: 10px 0; padding: 5px; width: 100%; }
+        button { padding: 5px 10px; margin: 5px 0; width: 100%; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Krikor Banking App</h1>
+
+    <!-- Main Menu -->
+    <div id="main-menu">
+        <button onclick="showScreen('create')">Create Account</button>
+        <button onclick="showScreen('login')">Login</button>
+    </div>
+
+    <!-- Create Account -->
+    <div id="create" class="hidden">
+        <h2>Create Account</h2>
+        <input type="text" id="create-username" placeholder="Username">
+        <input type="password" id="create-pin" placeholder="PIN">
+        <button onclick="createAccount()">Create</button>
+        <button onclick="showScreen('main-menu')">Back</button>
+        <p id="create-message"></p>
+    </div>
+
+    <!-- Login -->
+    <div id="login" class="hidden">
+        <h2>Login</h2>
+        <input type="text" id="login-username" placeholder="Username">
+        <input type="password" id="login-pin" placeholder="PIN">
+        <button onclick="login()">Login</button>
+        <button onclick="showScreen('main-menu')">Back</button>
+        <p id="login-message"></p>
+    </div>
+
+    <!-- Account -->
+    <div id="account" class="hidden">
+        <h2>Welcome, <span id="account-username"></span></h2>
+        <p>Balance: $<span id="account-balance">0</span></p>
+        <input type="number" id="deposit-amount" placeholder="Deposit amount">
+        <button onclick="deposit()">Deposit</button>
+        <input type="number" id="withdraw-amount" placeholder="Withdraw amount">
+        <button onclick="withdraw()">Withdraw</button>
+        <button onclick="logout()">Logout</button>
+        <p id="account-message"></p>
+    </div>
+</div>
+
+<script>
+    // Simulated accounts (replace with backend for persistence)
+    let accounts = [];
+
+    let currentUser = null;
+
+    function showScreen(screen) {
+        document.getElementById("main-menu").classList.add("hidden");
+        document.getElementById("create").classList.add("hidden");
+        document.getElementById("login").classList.add("hidden");
+        document.getElementById("account").classList.add("hidden");
+
+        document.getElementById(screen).classList.remove("hidden");
+        clearMessages();
+    }
+
+    function clearMessages() {
+        document.getElementById("create-message").textContent = "";
+        document.getElementById("login-message").textContent = "";
+        document.getElementById("account-message").textContent = "";
+    }
+
+    function createAccount() {
+        const username = document.getElementById("create-username").value.trim();
+        const pin = document.getElementById("create-pin").value.trim();
+        if (!username || !pin) {
+            document.getElementById("create-message").textContent = "Enter both username and PIN.";
+            return;
+        }
+        if (accounts.find(acc => acc.username === username)) {
+            document.getElementById("create-message").textContent = "Username already exists.";
+            return;
+        }
+        accounts.push({username: username, pin: pin, balance: 0});
+        document.getElementById("create-message").textContent = "Account created!";
+    }
+
+    function login() {
+        const username = document.getElementById("login-username").value.trim();
+        const pin = document.getElementById("login-pin").value.trim();
+        const user = accounts.find(acc => acc.username === username);
+        if (!user) {
+            document.getElementById("login-message").textContent = "User not found.";
+            return;
+        }
+        if (user.pin !== pin) {
+            document.getElementById("login-message").textContent = "Incorrect PIN.";
+            return;
+        }
+        currentUser = user;
+        document.getElementById("account-username").textContent = currentUser.username;
+        document.getElementById("account-balance").textContent = currentUser.balance;
+        showScreen("account");
+    }
+
+    function deposit() {
+        const amount = parseFloat(document.getElementById("deposit-amount").value);
+        if (isNaN(amount) || amount <= 0) {
+            document.getElementById("account-message").textContent = "Invalid deposit amount.";
+            return;
+        }
+        currentUser.balance += amount;
+        document.getElementById("account-balance").textContent = currentUser.balance;
+        document.getElementById("account-message").textContent = `Deposited $${amount}.`;
+    }
+
+    function withdraw() {
+        const amount = parseFloat(document.getElementById("withdraw-amount").value);
+        if (isNaN(amount) || amount <= 0) {
+            document.getElementById("account-message").textContent = "Invalid withdraw amount.";
+            return;
+        }
+        if (amount > currentUser.balance) {
+            document.getElementById("account-message").textContent = "Not enough balance.";
+            return;
+        }
+        currentUser.balance -= amount;
+        document.getElementById("account-balance").textContent = currentUser.balance;
+        document.getElementById("account-message").textContent = `Withdrew $${amount}.`;
+    }
+
+    function logout() {
+        currentUser = null;
+        showScreen("main-menu");
+    }
+</script>
+</body>
+</html>
