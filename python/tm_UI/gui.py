@@ -88,7 +88,3 @@ class TaskManagerApp:
             status = "✓" if task.completed else ""
             display_text = f"[{status}] {task.title} - {task.category} - Due: {task.due_date}"
             self.task_listbox.insert(tk.END, display_text)
-
-if __name__ == "__main__":
-    app = TaskManagerApp()
-    app.root.mainloop()
